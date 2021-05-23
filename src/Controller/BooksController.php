@@ -45,8 +45,17 @@ class BooksController extends AbstractController
 
     public function listBooksByCategory(Request $request)
     {
-        $cata = $request->query->get("category");
-        $page = $request->query->get("page");
+        $cata = (int) $request->query->get("category");
+        $page = (int) $request->query->get("page");
+
+        
+        if(!is_int($cata) || $cata < 1){
+            return new JsonResponse('Invalid Category ID');
+        }
+        
+        if(!is_int($page) || $page < 1){
+            $page = 1;
+        }
 
         $data = $this->getDoctrine()->getRepository(Books::class)->findBooksByCategoryId($cata, $page);
         $response = [];
