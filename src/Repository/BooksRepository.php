@@ -25,7 +25,7 @@ class BooksRepository extends ServiceEntityRepository
     
     public function findBooksByCategoryId($value, $page)
     {
-        $limit = 10;
+        $limit = 9;
         $from = ($page == 1) ? 0 : (($page -1) * $limit);
 
         return $this->createQueryBuilder('b')

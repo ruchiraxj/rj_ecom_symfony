@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CategoryController extends AbstractController
 {
     /**
-     * @Route("/category/list", name="get_category_list")
+     * @Route("/api/category/list", name="get_category_list")
      */
     public function list()
     {

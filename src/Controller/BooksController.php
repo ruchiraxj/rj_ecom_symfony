@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 class BooksController extends AbstractController
 {
     /**
-     * @Route("/books/show/{id}", name="get_book_by_id")
+     * @Route("/api/books/show/{id}", name="get_book_by_id")
      */
     public function show($id)
     {
@@ -40,7 +40,7 @@ class BooksController extends AbstractController
     }
 
     /**
-     * @Route("/books/list", name="list_books_by_category")
+     * @Route("/api/books/list", name="list_books_by_category")
      */
 
     public function listBooksByCategory(Request $request)

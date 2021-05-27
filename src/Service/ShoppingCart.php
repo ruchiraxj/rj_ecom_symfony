@@ -41,6 +41,7 @@ class ShoppingCart{
         $data['qty'] = $book->getQty();
         $data['author'] = $book->getAuthor();
         $data['category'] = $book->getCategory()->getCategoryName();
+        $data['categoryId'] = $book->getCategoryId();
         return $data;
 
     }
@@ -50,13 +51,41 @@ class ShoppingCart{
      */
     private function getCartSum($data){
         $response = [
-            "total" => 0,
-            "discount" => 0
+            "subTotal" => 0,
+            "discount" => 0,
+            "total" => 0
         ];
 
-        foreach($data as $k){
-            $response['total'] += $k['total'];
+        if(count($data) < 1){
+            return $response;
         }
+
+        $qts = [];
+        foreach($data as $k){
+            $response['subTotal'] += $k['total'];
+
+            if(!isset($qts[$k['categoryId']])){
+                $qts[$k['categoryId']] = ['qty' => 0, 'tot' => 0];
+            }
+            $qts[$k['categoryId']]['qty'] += $k['qty'];
+            $qts[$k['categoryId']]['tot'] += $k['total'];
+
+        }
+
+        
+        if(@$qts[1]['qty'] >= 5){
+            $response['discount'] += ($qts[1]['tot'] * 0.1);
+        }
+
+        if(@$qts[1]['qty'] >= 10 && @$qts[2]['qty'] >= 10){
+            $response['discount'] += ($response['subTotal'] * 0.05);
+        }
+
+        $response['total'] = number_format(($response['subTotal'] - $response['discount']), 2);
+        $response['discount'] = number_format($response['discount'], 2);
+        $response['subTotal'] = number_format($response['subTotal'], 2);
+
+
         return $response;
     }
 
@@ -82,7 +111,7 @@ class ShoppingCart{
         foreach($items as $kk => $k){
             if($k['id'] === $book['id']){
                 if($k['qty'] > $book['qty']){
-                    throw new Exception('Only '.$book['qty'] .' Book/s avaialble : '.$book['title']);
+                    throw new Exception('Only '.$book['qty'] .' Book/s avaialble : '.$book['title'], 400);
                 }
                 $trueQty = $k['qty'] + 1;
                 $items[$kk]['qty'] = $trueQty;
@@ -102,6 +131,35 @@ class ShoppingCart{
 
         //revalidate the sum
         $cartItems['sum'] = $this->getCartSum($items);
+        
+
+        //push data to session
+        $this->session->set("cart_items", $cartItems);
+        return $cartItems;
+    }
+
+
+    public function deleteFromCart($id){
+        $book = $this->fetchBookInfo($id);
+        
+        //get the cart items for the user session
+        $cartItems = $this->getCartData();
+        $items = $cartItems['items'];
+
+        //check if book is already exists in the cart
+        //if book exists in the cart update qty and total
+        $newArray = [];
+        foreach($items as $kk => $k){
+            if($k['id'] !== $book['id']){
+                $newArray[] = $k;
+            }
+        }
+
+        //update cart items 
+        $cartItems['items'] = $newArray;
+
+        //revalidate the sum
+        $cartItems['sum'] = $this->getCartSum($newArray);
         
 
         //push data to session
