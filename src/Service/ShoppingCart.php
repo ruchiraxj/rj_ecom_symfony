@@ -9,6 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class ShoppingCart{
     public $session;
     private $em;
+    protected $discountCodes = [['code' => 111, 'discount' => 0.1], ['code' => 222, 'discount' => 0.2], ['code' => 333, 'discount' => 0.3]];
+
     public function __construct(EntityManagerInterface $em)
     {
         //if sessions are not started, create new
@@ -53,7 +55,8 @@ class ShoppingCart{
         $response = [
             "subTotal" => 0,
             "discount" => 0,
-            "total" => 0
+            "total" => 0,
+            "code" => ""
         ];
 
         if(count($data) < 1){
@@ -72,18 +75,32 @@ class ShoppingCart{
 
         }
 
-        
-        if(@$qts[1]['qty'] >= 5){
-            $response['discount'] += ($qts[1]['tot'] * 0.1);
-        }
+        $discount_code = $this->session->get('discount_code');
 
-        if(@$qts[1]['qty'] >= 10 && @$qts[2]['qty'] >= 10){
-            $response['discount'] += ($response['subTotal'] * 0.05);
+        if($discount_code == ""){
+
+            if(@$qts[1]['qty'] >= 5){
+                $response['discount'] += ($qts[1]['tot'] * 0.1);
+            }
+
+            if(@$qts[1]['qty'] >= 10 && @$qts[2]['qty'] >= 10){
+                $response['discount'] += ($response['subTotal'] * 0.05);
+            }
+
+        }else{
+            foreach($this->discountCodes as $k){
+                if($k['code'] == $discount_code){
+                    $response['discount'] = ($response['subTotal'] * $k['discount']);
+                    break;
+                }
+            }
         }
 
         $response['total'] = number_format(($response['subTotal'] - $response['discount']), 2);
         $response['discount'] = number_format($response['discount'], 2);
         $response['subTotal'] = number_format($response['subTotal'], 2);
+        $response['code'] = $discount_code;
+
 
 
         return $response;
@@ -172,4 +189,34 @@ class ShoppingCart{
         return ($this->session->get('cart_items')) ? $this->session->get('cart_items') : ["items" => [], "sum" => []];
     }
 
+
+    public function addCoupon($code)
+    {
+
+        if ($code == "") {
+            $this->session->set('discount_code', "");
+        } else {
+            $discountCodes = $this->discountCodes;
+            $ids = array_column($discountCodes, 'code', 'code');
+            if (!isset($ids[$code])) {
+                $this->session->set('discount_code', "");
+            } else {
+                $this->session->set('discount_code', $code);
+            }
+        }
+        $cartItems = $this->getCartData();
+
+        //revalidate the sum
+        $cartItems['sum'] = $this->getCartSum($cartItems['items']);
+
+        //push data to session
+        $this->session->set("cart_items", $cartItems);
+
+        return $cartItems;
+    }
+
+    
+    private function customResponse($status = true, $data = [], $message = "", $code = ""){
+        return ['success' => $status, 'data' => $data, 'message' => $message, 'code' => $code];
+    }
 }

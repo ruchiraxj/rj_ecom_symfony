@@ -64,4 +64,20 @@ class ShoppingCartController extends AbstractController
 
     }
 
+     /**
+     * @Route("/api/discount/add", name="add_discount_coupon")
+     */
+    public function addCoupon(Request $request, ShoppingCart $cart)
+    {
+        $id = $request->query->get("code");
+        try{
+            $data = $cart->addCoupon($id);
+            return new JsonResponse($data);
+
+        }catch(Exception $e){
+            return new JsonResponse($e->getMessage(), $e->getCode());
+        }
+
+    }
+
 }
