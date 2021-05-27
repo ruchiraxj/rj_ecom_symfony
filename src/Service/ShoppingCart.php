@@ -17,8 +17,8 @@ class ShoppingCart{
         if(session_status() == PHP_SESSION_NONE){
             $this->session = new Session();
             $this->session->start();
-            $this->em = $em;
         }
+        $this->em = $em;
 
         // $this->session->invalidate();
         // die;
