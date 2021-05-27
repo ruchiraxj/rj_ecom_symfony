@@ -12,3 +12,9 @@
 2. create a Database "rj_book_store"
 3. Open .env file and change the DATABASE_URL accordingly
 4. Run command "php bin/console doctrine:migration:migrate" to migrate the necessary tables and data
+
+### Special Notes
+1. For discounts, use below codes.
+###### Code = 111 Discount: 10%
+###### Code = 222 Discount: 20%
+###### Code = 333 Discount: 30%
