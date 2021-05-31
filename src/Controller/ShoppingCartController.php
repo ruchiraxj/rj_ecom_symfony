@@ -29,7 +29,7 @@ class ShoppingCartController extends AbstractController
     /**
      * @Route("/api/cart/add", name="add_item_to_cart")
      */
-    public function add(Request $request, ShoppingCart $cart)
+    public function add(Request $request, ShoppingCart $cart) //should be a POST request. Due to CORS issue, made it a GET request for testing
     {
         $id = $request->query->get("id");
         if($id == ""){
@@ -48,7 +48,7 @@ class ShoppingCartController extends AbstractController
     /**
      * @Route("/api/cart/delete", name="delete_item_from_cart")
      */
-    public function delete(Request $request, ShoppingCart $cart)
+    public function delete(Request $request, ShoppingCart $cart) //should be a DELETE request. Due to CORS issue, made it a GET request for testing
     {
         $id = $request->query->get("id");
         if($id == ""){
@@ -67,7 +67,7 @@ class ShoppingCartController extends AbstractController
      /**
      * @Route("/api/discount/add", name="add_discount_coupon")
      */
-    public function addCoupon(Request $request, ShoppingCart $cart)
+    public function addCoupon(Request $request, ShoppingCart $cart) //should be a POST request. Due to CORS issue, made it a GET request for testing
     {
         $id = $request->query->get("code");
         try{
